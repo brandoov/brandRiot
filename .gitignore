@@ -1,0 +1,43 @@
+# .NET
+bin/
+obj/
+out/
+*.user
+*.suo
+*.userprefs
+*.pidb
+*.swp
+.vs/
+.vscode/
+.idea/
+*.lock.json
+project.lock.json
+
+# Build outputs
+[Dd]ebug/
+[Rr]elease/
+[Xx]64/
+[Xx]86/
+[Bb]uild/
+[Pp]ublish/
+[Ll]og/
+[Ll]ogs/
+
+# Rider
+*.sln.iml
+
+# User secrets
+secrets.json
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Postgres docker volume (just in case)
+pgdata/
+
+# Coverage / test
+TestResults/
+coverage*.xml
+*.coverage
+*.coveragexml

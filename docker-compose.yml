@@ -1,0 +1,21 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: brandriot-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: brandriot
+      POSTGRES_USER: brandriot
+      POSTGRES_PASSWORD: brandriot
+    ports:
+      - "5432:5432"
+    volumes:
+      - brandriot-pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U brandriot -d brandriot"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  brandriot-pgdata:
