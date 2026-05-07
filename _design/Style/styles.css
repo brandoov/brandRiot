@@ -1,0 +1,208 @@
+/* brandRiot — global theme tokens & per-game palettes */
+
+:root {
+  --bg-0: #0a0a0d;
+  --bg-1: #111116;
+  --bg-2: #181820;
+  --bg-3: #22222c;
+  --line: rgba(255, 255, 255, 0.08);
+  --line-2: rgba(255, 255, 255, 0.14);
+  --text-0: #f5f5f7;
+  --text-1: #c8c8d0;
+  --text-2: #8a8a96;
+  --text-3: #5a5a66;
+
+  /* default = LoL */
+  --accent: #c8aa6e;
+  --accent-2: #f0e6d2;
+  --accent-deep: #785a28;
+  --accent-bg: #091428;
+  --accent-glow: rgba(200, 170, 110, 0.35);
+  --game-font: "Cinzel", "EB Garamond", serif;
+  --body-font: "Inter", system-ui, sans-serif;
+}
+
+/* per-game themes */
+[data-game="lol"] {
+  --accent: #c8aa6e;
+  --accent-2: #f0e6d2;
+  --accent-deep: #785a28;
+  --accent-bg: #091428;
+  --accent-glow: rgba(200, 170, 110, 0.35);
+  --game-font: "Cinzel", "EB Garamond", serif;
+}
+[data-game="valorant"] {
+  --accent: #ff4655;
+  --accent-2: #ff8a95;
+  --accent-deep: #8a1a23;
+  --accent-bg: #0f1923;
+  --accent-glow: rgba(255, 70, 85, 0.4);
+  --game-font: "Oswald", "Bebas Neue", sans-serif;
+}
+[data-game="tft"] {
+  --accent: #37cdbe;
+  --accent-2: #8ce6dc;
+  --accent-deep: #1a6b62;
+  --accent-bg: #1d1733;
+  --accent-glow: rgba(55, 205, 190, 0.4);
+  --game-font: "Space Grotesk", system-ui, sans-serif;
+}
+[data-game="lor"] {
+  --accent: #d4a657;
+  --accent-2: #f0d9a3;
+  --accent-deep: #8a6818;
+  --accent-bg: #1a1410;
+  --accent-glow: rgba(212, 166, 87, 0.35);
+  --game-font: "EB Garamond", "Cinzel", serif;
+}
+
+/* light mode */
+[data-mode="light"] {
+  --bg-0: #f4f1ea;
+  --bg-1: #ebe7dd;
+  --bg-2: #ddd7c8;
+  --bg-3: #c9c1ae;
+  --line: rgba(0, 0, 0, 0.10);
+  --line-2: rgba(0, 0, 0, 0.18);
+  --text-0: #1a1814;
+  --text-1: #3a382f;
+  --text-2: #6a665a;
+  --text-3: #9a9486;
+}
+
+/* theme intensity */
+[data-intensity="cinematic"] .game-shell {
+  background:
+    radial-gradient(ellipse 80% 60% at 50% -10%, var(--accent-glow), transparent 60%),
+    radial-gradient(ellipse 60% 50% at 90% 110%, var(--accent-glow), transparent 70%),
+    var(--accent-bg);
+}
+[data-intensity="medium"] .game-shell {
+  background:
+    radial-gradient(ellipse 50% 40% at 50% -5%, var(--accent-glow), transparent 70%),
+    var(--bg-0);
+}
+[data-intensity="subtle"] .game-shell {
+  background: var(--bg-0);
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  font-family: var(--body-font);
+  background: var(--bg-0);
+  color: var(--text-0);
+  font-feature-settings: "ss01", "cv01";
+  -webkit-font-smoothing: antialiased;
+}
+
+.font-game { font-family: var(--game-font); }
+.font-mono { font-family: "JetBrains Mono", ui-monospace, monospace; }
+
+/* shared primitives */
+.card {
+  background: var(--bg-1);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+}
+.card-flat {
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+}
+
+.btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 10px 16px; border-radius: 8px;
+  font-family: var(--body-font); font-size: 13px; font-weight: 500;
+  border: 1px solid var(--line-2); background: var(--bg-2); color: var(--text-0);
+  cursor: pointer; transition: all .15s;
+}
+.btn:hover { background: var(--bg-3); border-color: var(--accent); }
+.btn-primary {
+  background: var(--accent); color: #0a0a0d; border-color: var(--accent);
+}
+.btn-primary:hover { background: var(--accent-2); border-color: var(--accent-2); }
+.btn-ghost { background: transparent; border-color: var(--line); }
+
+.chip {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 4px 10px; border-radius: 999px;
+  font-size: 11px; font-weight: 500; letter-spacing: 0.02em;
+  background: var(--bg-2); border: 1px solid var(--line);
+  color: var(--text-1);
+}
+.chip-accent {
+  background: color-mix(in oklab, var(--accent) 18%, transparent);
+  border-color: color-mix(in oklab, var(--accent) 40%, transparent);
+  color: var(--accent-2);
+}
+.chip-win  { background: rgba(46, 200, 130, 0.15); border-color: rgba(46, 200, 130, 0.35); color: #4adfa0; }
+.chip-loss { background: rgba(220, 80, 90, 0.15); border-color: rgba(220, 80, 90, 0.35); color: #ff8a95; }
+
+/* divider */
+.hr { height: 1px; background: var(--line); border: 0; }
+
+/* tags / labels */
+.kbd {
+  font-family: var(--body-font); font-size: 10px; font-weight: 500;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--text-2);
+}
+
+/* scrollbars */
+.scroll::-webkit-scrollbar { width: 10px; height: 10px; }
+.scroll::-webkit-scrollbar-thumb { background: var(--line-2); border-radius: 6px; }
+.scroll::-webkit-scrollbar-track { background: transparent; }
+
+/* progress bars */
+.bar {
+  position: relative; height: 6px; border-radius: 999px;
+  background: var(--bg-3); overflow: hidden;
+}
+.bar > span {
+  position: absolute; inset: 0 auto 0 0;
+  background: linear-gradient(90deg, var(--accent-deep), var(--accent));
+  border-radius: 999px;
+}
+
+/* keyframes */
+@keyframes pulse-soft {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.55; }
+}
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+.shimmer {
+  background: linear-gradient(90deg,
+    transparent 0%,
+    color-mix(in oklab, var(--accent) 25%, transparent) 50%,
+    transparent 100%);
+  background-size: 200% 100%;
+  animation: shimmer 3s linear infinite;
+}
+
+/* full-bleed game shell */
+.game-shell {
+  min-height: 100vh;
+  position: relative;
+}
+.game-shell::before {
+  content: ""; position: absolute; inset: 0;
+  background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='2' height='2'><rect width='1' height='1' fill='%23ffffff' fill-opacity='0.012'/></svg>");
+  pointer-events: none;
+}
+
+/* hex / shape decorations */
+.deco-hex {
+  position: absolute; pointer-events: none;
+  width: 320px; height: 280px; opacity: 0.18;
+  background: conic-gradient(from 30deg at 50% 50%,
+    transparent 0 60deg, var(--accent) 60deg 120deg,
+    transparent 120deg 180deg, var(--accent) 180deg 240deg,
+    transparent 240deg 300deg, var(--accent) 300deg 360deg);
+  mask: linear-gradient(black, transparent);
+  filter: blur(40px);
+}
