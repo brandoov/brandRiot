@@ -1,4 +1,4 @@
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import type { RiotCluster, RiotPlatform } from "@/api/types";
 
 export interface RiotIdSearchValue {
@@ -8,11 +8,11 @@ export interface RiotIdSearchValue {
   cluster: RiotCluster;
 }
 
-const platforms: RiotPlatform[] = [
+const PLATFORMS: RiotPlatform[] = [
   "Br1", "Na1", "Lan", "Las", "Euw1", "Eun1", "Tr1", "Ru",
   "Kr",  "Jp1", "Oc1", "Ph2", "Sg2",  "Th2",  "Tw2", "Vn2"
 ];
-const clusters: RiotCluster[] = ["Americas", "Europe", "Asia", "Sea"];
+const CLUSTERS: RiotCluster[] = ["Americas", "Europe", "Asia", "Sea"];
 
 interface Props {
   defaults?: Partial<RiotIdSearchValue>;
@@ -20,6 +20,7 @@ interface Props {
   loading?: boolean;
   showCluster?: boolean;
   showPlatform?: boolean;
+  variant?: "card" | "inline";
 }
 
 export default function RiotIdSearch({
@@ -27,12 +28,21 @@ export default function RiotIdSearch({
   onSubmit,
   loading = false,
   showCluster = true,
-  showPlatform = true
+  showPlatform = true,
+  variant = "card"
 }: Props) {
   const [gameName, setGameName] = useState(defaults?.gameName ?? "");
   const [tagLine, setTagLine] = useState(defaults?.tagLine ?? "BR1");
   const [platform, setPlatform] = useState<RiotPlatform>(defaults?.platform ?? "Br1");
   const [cluster, setCluster] = useState<RiotCluster>(defaults?.cluster ?? "Americas");
+
+  useEffect(() => {
+    if (defaults?.gameName !== undefined) setGameName(defaults.gameName);
+    if (defaults?.tagLine !== undefined) setTagLine(defaults.tagLine);
+    if (defaults?.platform !== undefined) setPlatform(defaults.platform);
+    if (defaults?.cluster !== undefined) setCluster(defaults.cluster);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [defaults?.gameName, defaults?.tagLine, defaults?.platform, defaults?.cluster]);
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -40,76 +50,125 @@ export default function RiotIdSearch({
     onSubmit({ gameName: gameName.trim(), tagLine: tagLine.trim(), platform, cluster });
   }
 
-  return (
-    <form
-      onSubmit={handleSubmit}
-      className="grid grid-cols-1 gap-3 rounded-lg border border-slate-200 bg-white p-4 shadow-sm sm:grid-cols-12"
-    >
-      <label className="sm:col-span-5">
-        <span className="mb-1 block text-xs font-medium uppercase tracking-wide text-slate-500">
-          Game Name
-        </span>
+  const inputStyle: React.CSSProperties = {
+    width: "100%",
+    padding: "8px 12px",
+    fontSize: 13,
+    background: "var(--bg-2)",
+    color: "var(--text-0)",
+    border: "1px solid var(--line-2)",
+    borderRadius: 8,
+    fontFamily: "inherit"
+  };
+  const labelStyle: React.CSSProperties = {
+    display: "block",
+    fontSize: 9,
+    fontWeight: 500,
+    letterSpacing: "0.12em",
+    textTransform: "uppercase",
+    color: "var(--text-2)",
+    marginBottom: 4
+  };
+
+  if (variant === "inline") {
+    return (
+      <form
+        onSubmit={handleSubmit}
+        style={{
+          display: "grid",
+          gridTemplateColumns: "minmax(120px, 1fr) 80px 90px 90px auto",
+          gap: 8,
+          alignItems: "end",
+          width: "100%"
+        }}
+      >
         <input
+          aria-label="Game Name"
           value={gameName}
           onChange={(e) => setGameName(e.target.value)}
-          placeholder="ex: Faker"
-          className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-200"
+          placeholder="Game Name"
+          style={inputStyle}
         />
-      </label>
-      <label className="sm:col-span-2">
-        <span className="mb-1 block text-xs font-medium uppercase tracking-wide text-slate-500">
-          Tag Line
-        </span>
         <input
+          aria-label="Tag Line"
           value={tagLine}
           onChange={(e) => setTagLine(e.target.value)}
           placeholder="BR1"
-          className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-200"
+          style={inputStyle}
         />
-      </label>
-      {showPlatform && (
-        <label className="sm:col-span-2">
-          <span className="mb-1 block text-xs font-medium uppercase tracking-wide text-slate-500">
-            Platform
-          </span>
+        {showPlatform ? (
           <select
+            aria-label="Platform"
             value={platform}
             onChange={(e) => setPlatform(e.target.value as RiotPlatform)}
-            className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-200"
+            style={inputStyle}
           >
-            {platforms.map((p) => (
-              <option key={p} value={p}>
-                {p}
-              </option>
+            {PLATFORMS.map((p) => (
+              <option key={p} value={p}>{p}</option>
             ))}
+          </select>
+        ) : <span />}
+        {showCluster ? (
+          <select
+            aria-label="Cluster"
+            value={cluster}
+            onChange={(e) => setCluster(e.target.value as RiotCluster)}
+            style={inputStyle}
+          >
+            {CLUSTERS.map((c) => (
+              <option key={c} value={c}>{c}</option>
+            ))}
+          </select>
+        ) : <span />}
+        <button
+          type="submit"
+          disabled={loading}
+          className="btn btn-primary"
+          style={{ padding: "8px 14px", fontSize: 12, justifyContent: "center" }}
+        >
+          {loading ? "..." : "Buscar"}
+        </button>
+      </form>
+    );
+  }
+
+  return (
+    <form
+      onSubmit={handleSubmit}
+      className="card"
+      style={{
+        display: "grid",
+        gridTemplateColumns: "repeat(12, minmax(0, 1fr))",
+        gap: 12,
+        padding: 16
+      }}
+    >
+      <label style={{ gridColumn: "span 5" }}>
+        <span style={labelStyle}>Game Name</span>
+        <input value={gameName} onChange={(e) => setGameName(e.target.value)} placeholder="ex: Faker" style={inputStyle} />
+      </label>
+      <label style={{ gridColumn: "span 2" }}>
+        <span style={labelStyle}>Tag Line</span>
+        <input value={tagLine} onChange={(e) => setTagLine(e.target.value)} placeholder="BR1" style={inputStyle} />
+      </label>
+      {showPlatform && (
+        <label style={{ gridColumn: "span 2" }}>
+          <span style={labelStyle}>Platform</span>
+          <select value={platform} onChange={(e) => setPlatform(e.target.value as RiotPlatform)} style={inputStyle}>
+            {PLATFORMS.map((p) => <option key={p} value={p}>{p}</option>)}
           </select>
         </label>
       )}
       {showCluster && (
-        <label className="sm:col-span-2">
-          <span className="mb-1 block text-xs font-medium uppercase tracking-wide text-slate-500">
-            Cluster
-          </span>
-          <select
-            value={cluster}
-            onChange={(e) => setCluster(e.target.value as RiotCluster)}
-            className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-200"
-          >
-            {clusters.map((c) => (
-              <option key={c} value={c}>
-                {c}
-              </option>
-            ))}
+        <label style={{ gridColumn: "span 2" }}>
+          <span style={labelStyle}>Cluster</span>
+          <select value={cluster} onChange={(e) => setCluster(e.target.value as RiotCluster)} style={inputStyle}>
+            {CLUSTERS.map((c) => <option key={c} value={c}>{c}</option>)}
           </select>
         </label>
       )}
-
-      <div className="flex items-end sm:col-span-1">
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full rounded-md bg-brand-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-60"
-        >
+      <div style={{ gridColumn: "span 1", display: "flex", alignItems: "end" }}>
+        <button type="submit" disabled={loading} className="btn btn-primary" style={{ width: "100%", justifyContent: "center" }}>
           {loading ? "..." : "Buscar"}
         </button>
       </div>

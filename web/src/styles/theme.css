@@ -206,3 +206,86 @@ body {
   mask: linear-gradient(black, transparent);
   filter: blur(40px);
 }
+
+/* responsividade da casca de jogo */
+.game-sidebar-desktop { display: contents; }
+@media (max-width: 767px) {
+  .game-sidebar-desktop { display: none; }
+}
+
+/* inputs herdam fontes do tema */
+input, select, textarea, button {
+  font-family: inherit;
+  color: inherit;
+}
+
+/* =====================================
+   Hub-only utilities (página index)
+   ===================================== */
+.games-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 18px;
+}
+@media (max-width: 1024px) {
+  .games-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 600px) {
+  .games-grid { grid-template-columns: 1fr; }
+}
+.hub-hero {
+  display: grid;
+}
+@media (max-width: 900px) {
+  .hub-hero {
+    grid-template-columns: 1fr !important;
+    gap: 32px !important;
+  }
+}
+
+.game-tile {
+  position: relative; cursor: pointer;
+  text-decoration: none; color: inherit;
+  border-radius: 18px; overflow: hidden;
+  transition: transform .35s cubic-bezier(.2,.7,.3,1);
+  aspect-ratio: 4/5;
+  display: flex; flex-direction: column; justify-content: flex-end;
+  border: 1px solid var(--line);
+}
+.game-tile:hover { transform: translateY(-4px); }
+.game-tile-glow {
+  position: absolute; inset: -1px; border-radius: 19px;
+  opacity: 0; transition: opacity .3s;
+  pointer-events: none;
+}
+.game-tile:hover .game-tile-glow { opacity: 1; }
+.game-tile-overlay {
+  position: absolute; inset: 0;
+  background: linear-gradient(180deg, transparent 0%, transparent 35%, rgba(0,0,0,0.85) 100%);
+  pointer-events: none;
+}
+.game-tile-content {
+  position: relative; padding: 24px;
+}
+.game-mark {
+  position: absolute; right: -40px; top: -20px; opacity: 0.18;
+  transition: opacity .3s, transform .6s;
+  pointer-events: none;
+}
+.game-tile:hover .game-mark {
+  opacity: 0.42; transform: rotate(-6deg) scale(1.05);
+}
+
+.stat-strip {
+  display: flex; justify-content: space-between;
+  padding: 14px 0 0; margin-top: 12px;
+  border-top: 1px solid rgba(255,255,255,0.12);
+}
+.stat-strip > div { font-family: "Cinzel", serif; }
+.stat-strip .v {
+  font-size: 20px; font-weight: 600; line-height: 1;
+}
+.stat-strip .l {
+  font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase;
+  color: rgba(255,255,255,0.55); margin-top: 4px; font-family: "Inter";
+}
