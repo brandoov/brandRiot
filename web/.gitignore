@@ -4,3 +4,4 @@ dist-ssr
 .vite
 *.local
 .env*.local
+*.tsbuildinfo
