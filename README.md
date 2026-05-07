@@ -4,14 +4,18 @@ API .NET 8 para integração com a [Riot Games Developer API](https://developer.
 
 ## Arquitetura
 
-Solução em Clean Architecture com 4 projetos:
+Solução em Clean Architecture com 4 projetos no backend e um frontend Vite + React + TS + Tailwind como placeholder:
 
 ```
-src/
+src/                            # backend .NET
 ├── BrandRiot.Domain/          # entidades, enums, contratos de repositório (sem dependências)
 ├── BrandRiot.Application/     # DTOs, interfaces e serviços (depende de Domain)
 ├── BrandRiot.Infrastructure/  # EF Core + PostgreSQL, clientes HTTP Riot, resilience
 └── BrandRiot.Api/             # Controllers (1 por jogo), Swagger, CORS, health checks
+web/                            # frontend (substituível pelo Claude Design)
+├── src/api/                   # cliente HTTP tipado + tipos espelhando os DTOs
+├── src/components/            # Layout responsivo, RiotIdSearch, StatusBanner
+└── src/pages/                 # uma página por jogo (LoL, TFT, Valorant, LoR)
 ```
 
 Direção de dependências: `Api → Application → Domain` e `Api → Infrastructure → Application → Domain`.
@@ -183,6 +187,18 @@ src/
     ├── appsettings.json
     └── appsettings.Development.json
 ```
+
+## Frontend
+
+Frontend Vite + React + TS + Tailwind em `web/`. Funciona como placeholder até o Claude Design entregar os componentes definitivos. Detalhes em [`web/README.md`](web/README.md).
+
+```bash
+cd web
+npm install
+npm run dev   # abre em http://localhost:5173 (proxy /api → http://localhost:5260)
+```
+
+A camada `web/src/api/` (cliente HTTP, tipos, endpoints por jogo) deve permanecer ao trocar o design — basta substituir `src/components/` e `src/pages/` pelos componentes do Claude Design e reaproveitar `lolApi`, `tftApi`, `valorantApi`, `lorApi` e o hook `useApi`.
 
 ## Fora do escopo (deferido)
 

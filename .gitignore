@@ -41,3 +41,9 @@ TestResults/
 coverage*.xml
 *.coverage
 *.coveragexml
+
+# Web frontend
+web/node_modules/
+web/dist/
+web/.vite/
+web/.env*.local

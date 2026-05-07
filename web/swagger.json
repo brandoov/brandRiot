@@ -1,0 +1,1844 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "BrandRiot API",
+    "description": "API .NET para integração com a Riot Games. Endpoints organizados por jogo: League of Legends, Teamfight Tactics, VALORANT (chave de produção) e Legends of Runeterra.",
+    "version": "v1"
+  },
+  "paths": {
+    "/api/account/by-riot-id": {
+      "get": {
+        "tags": [
+          "Account"
+        ],
+        "summary": "Resolves a Riot ID (gameName#tagLine) to a puuid and persists the account.",
+        "description": "Calls account-v1 by-riot-id and persists the account.",
+        "parameters": [
+          {
+            "name": "gameName",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "tagLine",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "cluster",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/RiotCluster"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlayerSummaryResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlayerSummaryResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlayerSummaryResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/account/by-puuid/{puuid}": {
+      "get": {
+        "tags": [
+          "Account"
+        ],
+        "summary": "Fetches the Riot account by puuid and persists/refreshes it.",
+        "parameters": [
+          {
+            "name": "puuid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "cluster",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/RiotCluster"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlayerSummaryResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlayerSummaryResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlayerSummaryResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/lol/players/by-riot-id": {
+      "get": {
+        "tags": [
+          "League of Legends"
+        ],
+        "summary": "Resolves a Riot ID and fetches the LoL summoner profile.",
+        "parameters": [
+          {
+            "name": "gameName",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "tagLine",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "platform",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/RiotPlatform"
+            }
+          },
+          {
+            "name": "cluster",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/RiotCluster"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/LolPlayerResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LolPlayerResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LolPlayerResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/lol/players/{puuid}/summoner": {
+      "get": {
+        "tags": [
+          "League of Legends"
+        ],
+        "summary": "Returns the LoL summoner data for the given puuid.",
+        "parameters": [
+          {
+            "name": "puuid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "platform",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/RiotPlatform"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/LolPlayerResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LolPlayerResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LolPlayerResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/lol/players/{puuid}/matches": {
+      "get": {
+        "tags": [
+          "League of Legends"
+        ],
+        "summary": "Returns recent matches for the given puuid (full match data is persisted).",
+        "parameters": [
+          {
+            "name": "puuid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "cluster",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/RiotCluster"
+            }
+          },
+          {
+            "name": "start",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 0
+            }
+          },
+          {
+            "name": "count",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 20
+            }
+          },
+          {
+            "name": "queue",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "type",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/LolMatchResponse"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/LolMatchResponse"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/LolMatchResponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/lol/matches/{matchId}": {
+      "get": {
+        "tags": [
+          "League of Legends"
+        ],
+        "summary": "Returns a single LoL match by id.",
+        "parameters": [
+          {
+            "name": "matchId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "cluster",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/RiotCluster"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/LolMatchResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LolMatchResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LolMatchResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/lol/players/{puuid}/ranked": {
+      "get": {
+        "tags": [
+          "League of Legends"
+        ],
+        "summary": "Returns the ranked entries for the given puuid.",
+        "parameters": [
+          {
+            "name": "puuid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "platform",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/RiotPlatform"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/LolRankedResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LolRankedResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LolRankedResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/lol/players/{puuid}/champion-mastery": {
+      "get": {
+        "tags": [
+          "League of Legends"
+        ],
+        "summary": "Returns top champion masteries for the given puuid.",
+        "parameters": [
+          {
+            "name": "puuid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "platform",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/RiotPlatform"
+            }
+          },
+          {
+            "name": "top",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 10
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/LolChampionMasteryResponse"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/LolChampionMasteryResponse"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/LolChampionMasteryResponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/lor/players/{puuid}/matches": {
+      "get": {
+        "tags": [
+          "Legends of Runeterra"
+        ],
+        "summary": "Returns recent LoR match ids for the given puuid.",
+        "parameters": [
+          {
+            "name": "puuid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "cluster",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/RiotCluster"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/LorMatchIdsResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LorMatchIdsResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LorMatchIdsResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/lor/matches/{matchId}": {
+      "get": {
+        "tags": [
+          "Legends of Runeterra"
+        ],
+        "summary": "Returns a single LoR match by id.",
+        "parameters": [
+          {
+            "name": "matchId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "cluster",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/RiotCluster"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/LorMatchResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LorMatchResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LorMatchResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/lor/leaderboards/master": {
+      "get": {
+        "tags": [
+          "Legends of Runeterra"
+        ],
+        "summary": "Returns the LoR Master tier leaderboard for the given regional cluster.",
+        "parameters": [
+          {
+            "name": "cluster",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/RiotCluster"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/LorLeaderboardResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LorLeaderboardResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LorLeaderboardResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/tft/players/by-riot-id": {
+      "get": {
+        "tags": [
+          "Teamfight Tactics"
+        ],
+        "summary": "Resolves a Riot ID and fetches the TFT summoner profile.",
+        "parameters": [
+          {
+            "name": "gameName",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "tagLine",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "platform",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/RiotPlatform"
+            }
+          },
+          {
+            "name": "cluster",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/RiotCluster"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/TftPlayerResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TftPlayerResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TftPlayerResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/tft/players/{puuid}/summoner": {
+      "get": {
+        "tags": [
+          "Teamfight Tactics"
+        ],
+        "summary": "Returns the TFT summoner data for the given puuid.",
+        "parameters": [
+          {
+            "name": "puuid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "platform",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/RiotPlatform"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/TftPlayerResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TftPlayerResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TftPlayerResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/tft/players/{puuid}/matches": {
+      "get": {
+        "tags": [
+          "Teamfight Tactics"
+        ],
+        "summary": "Returns recent TFT matches for the given puuid (full match data is persisted).",
+        "parameters": [
+          {
+            "name": "puuid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "cluster",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/RiotCluster"
+            }
+          },
+          {
+            "name": "start",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 0
+            }
+          },
+          {
+            "name": "count",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 20
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TftMatchResponse"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TftMatchResponse"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TftMatchResponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/tft/matches/{matchId}": {
+      "get": {
+        "tags": [
+          "Teamfight Tactics"
+        ],
+        "summary": "Returns a single TFT match by id.",
+        "parameters": [
+          {
+            "name": "matchId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "cluster",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/RiotCluster"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/TftMatchResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TftMatchResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TftMatchResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/tft/players/{puuid}/ranked": {
+      "get": {
+        "tags": [
+          "Teamfight Tactics"
+        ],
+        "summary": "Returns the ranked entries for the given puuid.",
+        "parameters": [
+          {
+            "name": "puuid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "platform",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/RiotPlatform"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/TftRankedResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TftRankedResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TftRankedResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/valorant/players/{puuid}/matches": {
+      "get": {
+        "tags": [
+          "VALORANT (production key required)"
+        ],
+        "summary": "Returns recent Valorant matches for the given puuid. Requires Riot production API key.",
+        "description": "Requires Riot production API key — development keys typically return 403 Forbidden.",
+        "parameters": [
+          {
+            "name": "puuid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "platform",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/RiotPlatform"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValorantMatchHistoryResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValorantMatchHistoryResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValorantMatchHistoryResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/valorant/matches/{matchId}": {
+      "get": {
+        "tags": [
+          "VALORANT (production key required)"
+        ],
+        "summary": "Returns a single Valorant match by id (requires production API key).",
+        "description": "Requires Riot production API key.",
+        "parameters": [
+          {
+            "name": "matchId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "platform",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/RiotPlatform"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValorantMatchResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValorantMatchResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValorantMatchResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/valorant/content": {
+      "get": {
+        "tags": [
+          "VALORANT (production key required)"
+        ],
+        "summary": "Returns Valorant content (characters, maps, modes, acts).",
+        "description": "Requires Riot production API key.",
+        "parameters": [
+          {
+            "name": "platform",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/RiotPlatform"
+            }
+          },
+          {
+            "name": "locale",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValorantContentResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValorantContentResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValorantContentResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/valorant/players/{puuid}/ranked": {
+      "get": {
+        "tags": [
+          "VALORANT (production key required)"
+        ],
+        "summary": "Returns the ranked entry for the given puuid.",
+        "description": "Requires Riot production API key.",
+        "parameters": [
+          {
+            "name": "puuid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "platform",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/RiotPlatform"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValorantRankedResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValorantRankedResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValorantRankedResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "LolChampionMasteryResponse": {
+        "type": "object",
+        "properties": {
+          "championId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "championLevel": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "championPoints": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "lastPlayTimeUtc": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "championPointsSinceLastLevel": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "championPointsUntilNextLevel": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "tokensEarned": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "chestGranted": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
+      "LolMatchParticipantResponse": {
+        "type": "object",
+        "properties": {
+          "puuid": {
+            "type": "string",
+            "nullable": true
+          },
+          "championId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "championName": {
+            "type": "string",
+            "nullable": true
+          },
+          "teamId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "win": {
+            "type": "boolean"
+          },
+          "kills": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "deaths": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "assists": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "goldEarned": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "totalDamageDealtToChampions": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "visionScore": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "csTotal": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "lane": {
+            "type": "string",
+            "nullable": true
+          },
+          "role": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "LolMatchResponse": {
+        "type": "object",
+        "properties": {
+          "matchId": {
+            "type": "string",
+            "nullable": true
+          },
+          "platform": {
+            "type": "string",
+            "nullable": true
+          },
+          "gameCreationUtc": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "gameDurationSeconds": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "gameVersion": {
+            "type": "string",
+            "nullable": true
+          },
+          "queueId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "mapId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "gameMode": {
+            "type": "string",
+            "nullable": true
+          },
+          "gameType": {
+            "type": "string",
+            "nullable": true
+          },
+          "participants": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/LolMatchParticipantResponse"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "LolPlayerResponse": {
+        "type": "object",
+        "properties": {
+          "puuid": {
+            "type": "string",
+            "nullable": true
+          },
+          "gameName": {
+            "type": "string",
+            "nullable": true
+          },
+          "tagLine": {
+            "type": "string",
+            "nullable": true
+          },
+          "platform": {
+            "type": "string",
+            "nullable": true
+          },
+          "summonerId": {
+            "type": "string",
+            "nullable": true
+          },
+          "profileIconId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "summonerLevel": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "revisionDate": {
+            "type": "integer",
+            "format": "int64"
+          }
+        },
+        "additionalProperties": false
+      },
+      "LolRankedEntryResponse": {
+        "type": "object",
+        "properties": {
+          "queueType": {
+            "type": "string",
+            "nullable": true
+          },
+          "tier": {
+            "type": "string",
+            "nullable": true
+          },
+          "rank": {
+            "type": "string",
+            "nullable": true
+          },
+          "leaguePoints": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "wins": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "losses": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "hotStreak": {
+            "type": "boolean"
+          },
+          "veteran": {
+            "type": "boolean"
+          },
+          "freshBlood": {
+            "type": "boolean"
+          },
+          "inactive": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
+      "LolRankedResponse": {
+        "type": "object",
+        "properties": {
+          "puuid": {
+            "type": "string",
+            "nullable": true
+          },
+          "entries": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/LolRankedEntryResponse"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "LorLeaderboardEntryResponse": {
+        "type": "object",
+        "properties": {
+          "rank": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "leaguePoints": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "LorLeaderboardResponse": {
+        "type": "object",
+        "properties": {
+          "cluster": {
+            "type": "string",
+            "nullable": true
+          },
+          "fetchedAtUtc": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "entries": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/LorLeaderboardEntryResponse"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "LorMatchIdsResponse": {
+        "type": "object",
+        "properties": {
+          "puuid": {
+            "type": "string",
+            "nullable": true
+          },
+          "cluster": {
+            "type": "string",
+            "nullable": true
+          },
+          "matchIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "LorMatchPlayerResponse": {
+        "type": "object",
+        "properties": {
+          "puuid": {
+            "type": "string",
+            "nullable": true
+          },
+          "deckId": {
+            "type": "string",
+            "nullable": true
+          },
+          "deckCode": {
+            "type": "string",
+            "nullable": true
+          },
+          "gameOutcome": {
+            "type": "string",
+            "nullable": true
+          },
+          "orderOfPlay": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "LorMatchResponse": {
+        "type": "object",
+        "properties": {
+          "matchId": {
+            "type": "string",
+            "nullable": true
+          },
+          "cluster": {
+            "type": "string",
+            "nullable": true
+          },
+          "gameStartUtc": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "gameMode": {
+            "type": "string",
+            "nullable": true
+          },
+          "gameType": {
+            "type": "string",
+            "nullable": true
+          },
+          "gameVersion": {
+            "type": "string",
+            "nullable": true
+          },
+          "gameFormat": {
+            "type": "string",
+            "nullable": true
+          },
+          "totalTurnCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "players": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/LorMatchPlayerResponse"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "PlayerSummaryResponse": {
+        "type": "object",
+        "properties": {
+          "puuid": {
+            "type": "string",
+            "nullable": true
+          },
+          "gameName": {
+            "type": "string",
+            "nullable": true
+          },
+          "tagLine": {
+            "type": "string",
+            "nullable": true
+          },
+          "cluster": {
+            "type": "string",
+            "nullable": true
+          },
+          "lastSeenPlatform": {
+            "type": "string",
+            "nullable": true
+          },
+          "firstFetchedUtc": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "lastFetchedUtc": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "additionalProperties": false
+      },
+      "RiotCluster": {
+        "enum": [
+          "Americas",
+          "Europe",
+          "Asia",
+          "Sea"
+        ],
+        "type": "string"
+      },
+      "RiotPlatform": {
+        "enum": [
+          "Br1",
+          "Na1",
+          "Lan",
+          "Las",
+          "Euw1",
+          "Eun1",
+          "Tr1",
+          "Ru",
+          "Kr",
+          "Jp1",
+          "Oc1",
+          "Ph2",
+          "Sg2",
+          "Th2",
+          "Tw2",
+          "Vn2"
+        ],
+        "type": "string"
+      },
+      "TftMatchParticipantResponse": {
+        "type": "object",
+        "properties": {
+          "puuid": {
+            "type": "string",
+            "nullable": true
+          },
+          "placement": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "level": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "lastRound": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "playersEliminated": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalDamageToPlayers": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "goldLeft": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "TftMatchResponse": {
+        "type": "object",
+        "properties": {
+          "matchId": {
+            "type": "string",
+            "nullable": true
+          },
+          "cluster": {
+            "type": "string",
+            "nullable": true
+          },
+          "gameDateUtc": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "gameLengthSeconds": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "gameVersion": {
+            "type": "string",
+            "nullable": true
+          },
+          "queueId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "tftSetNumber": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "tftGameType": {
+            "type": "string",
+            "nullable": true
+          },
+          "participants": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TftMatchParticipantResponse"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "TftPlayerResponse": {
+        "type": "object",
+        "properties": {
+          "puuid": {
+            "type": "string",
+            "nullable": true
+          },
+          "gameName": {
+            "type": "string",
+            "nullable": true
+          },
+          "tagLine": {
+            "type": "string",
+            "nullable": true
+          },
+          "platform": {
+            "type": "string",
+            "nullable": true
+          },
+          "summonerId": {
+            "type": "string",
+            "nullable": true
+          },
+          "profileIconId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "summonerLevel": {
+            "type": "integer",
+            "format": "int64"
+          }
+        },
+        "additionalProperties": false
+      },
+      "TftRankedEntryResponse": {
+        "type": "object",
+        "properties": {
+          "queueType": {
+            "type": "string",
+            "nullable": true
+          },
+          "tier": {
+            "type": "string",
+            "nullable": true
+          },
+          "rank": {
+            "type": "string",
+            "nullable": true
+          },
+          "leaguePoints": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "wins": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "losses": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "hotStreak": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
+      "TftRankedResponse": {
+        "type": "object",
+        "properties": {
+          "puuid": {
+            "type": "string",
+            "nullable": true
+          },
+          "entries": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TftRankedEntryResponse"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ValorantContentResponse": {
+        "type": "object",
+        "properties": {
+          "version": {
+            "type": "string",
+            "nullable": true
+          },
+          "characterCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "mapCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "gameModeCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "actCount": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "ValorantMatchHistoryEntryResponse": {
+        "type": "object",
+        "properties": {
+          "matchId": {
+            "type": "string",
+            "nullable": true
+          },
+          "gameStartUtc": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "queueId": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ValorantMatchHistoryResponse": {
+        "type": "object",
+        "properties": {
+          "puuid": {
+            "type": "string",
+            "nullable": true
+          },
+          "history": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ValorantMatchHistoryEntryResponse"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ValorantMatchPlayerResponse": {
+        "type": "object",
+        "properties": {
+          "puuid": {
+            "type": "string",
+            "nullable": true
+          },
+          "teamId": {
+            "type": "string",
+            "nullable": true
+          },
+          "characterId": {
+            "type": "string",
+            "nullable": true
+          },
+          "score": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "roundsPlayed": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "kills": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "deaths": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "assists": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "ValorantMatchResponse": {
+        "type": "object",
+        "properties": {
+          "matchId": {
+            "type": "string",
+            "nullable": true
+          },
+          "platform": {
+            "type": "string",
+            "nullable": true
+          },
+          "mapId": {
+            "type": "string",
+            "nullable": true
+          },
+          "gameVersion": {
+            "type": "string",
+            "nullable": true
+          },
+          "queueId": {
+            "type": "string",
+            "nullable": true
+          },
+          "gameStartUtc": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "gameLengthMillis": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "isCompleted": {
+            "type": "boolean"
+          },
+          "seasonId": {
+            "type": "string",
+            "nullable": true
+          },
+          "players": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ValorantMatchPlayerResponse"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ValorantRankedResponse": {
+        "type": "object",
+        "properties": {
+          "puuid": {
+            "type": "string",
+            "nullable": true
+          },
+          "actId": {
+            "type": "string",
+            "nullable": true
+          },
+          "tier": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "rankedRating": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "numberOfWins": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  }
+}
