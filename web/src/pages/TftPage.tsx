@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import GameShell from "@/components/game/GameShell";
 import RiotIdSearch, { type RiotIdSearchValue } from "@/components/RiotIdSearch";
 import StatusBanner from "@/components/StatusBanner";
@@ -13,23 +13,33 @@ export default function TftPage() {
   const ranked = useApi(tftApi.ranked);
   const matches = useApi(tftApi.recentMatches);
 
-  async function handleSubmit(value: RiotIdSearchValue) {
-    setMemory(value);
-    const p = await player.run(value.gameName, value.tagLine, {
-      platform: value.platform,
-      cluster: value.cluster
-    });
-    if (!p) return;
-    await Promise.allSettled([
-      ranked.run(p.puuid, { platform: value.platform }),
-      matches.run(p.puuid, { cluster: value.cluster, count: 6 })
-    ]);
-  }
-
+  const lastKeyRef = useRef<string>("");
   useEffect(() => {
-    if (memory.gameName) handleSubmit(memory);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    if (!memory.gameName) return;
+    const key = `${memory.gameName}|${memory.tagLine}|${memory.platform}|${memory.cluster}`;
+    if (lastKeyRef.current === key) return;
+    lastKeyRef.current = key;
+
+    let cancelled = false;
+    (async () => {
+      const p = await player.run(memory.gameName, memory.tagLine, {
+        platform: memory.platform,
+        cluster: memory.cluster
+      });
+      if (cancelled || !p) return;
+      await Promise.allSettled([
+        ranked.run(p.puuid, { platform: memory.platform }),
+        matches.run(p.puuid, { cluster: memory.cluster, count: 6 })
+      ]);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [memory, player, ranked, matches]);
+
+  function handleSubmit(value: RiotIdSearchValue) {
+    setMemory(value);
+  }
 
   const model = buildTftModel({
     player: player.data,
@@ -37,17 +47,43 @@ export default function TftPage() {
     matches: matches.data
   });
 
-  const riotIdLabel = player.data ? `${player.data.gameName}#${player.data.tagLine}` : memory.gameName ? `${memory.gameName}#${memory.tagLine}` : undefined;
+  const isLoading = player.loading || ranked.loading || matches.loading;
+  const error = player.error ?? ranked.error ?? matches.error;
+  const realLoaded = !!player.data && !error && !isLoading;
+
+  const riotIdLabel = player.data
+    ? `${player.data.gameName}#${player.data.tagLine}`
+    : memory.gameName
+      ? `${memory.gameName}#${memory.tagLine}`
+      : undefined;
 
   const banner = (() => {
     if (!memory.gameName) {
-      return <StatusBanner empty emptyMessage="Informe seu Riot ID na busca acima para carregar dados reais." />;
+      return (
+        <StatusBanner
+          empty
+          emptyMessage="Informe seu Riot ID na busca acima para carregar dados reais."
+        />
+      );
     }
-    if (player.error || ranked.error || matches.error) {
-      return <StatusBanner error={player.error ?? ranked.error ?? matches.error} />;
+    if (error) {
+      return <StatusBanner error={error} />;
     }
-    if (player.loading || ranked.loading || matches.loading) {
-      return <StatusBanner loading />;
+    if (isLoading) {
+      return (
+        <StatusBanner
+          loading
+          loadingMessage={`Carregando ${memory.gameName}#${memory.tagLine} (${memory.platform})…`}
+        />
+      );
+    }
+    if (realLoaded && player.data) {
+      return (
+        <StatusBanner
+          success
+          successMessage={`Dados reais carregados para ${player.data.gameName}#${player.data.tagLine} · ${matches.data?.length ?? 0} partidas · ${ranked.data?.entries.length ?? 0} entradas ranked.`}
+        />
+      );
     }
     return null;
   })();
@@ -63,7 +99,7 @@ export default function TftPage() {
           variant="inline"
           defaults={memory}
           onSubmit={handleSubmit}
-          loading={player.loading}
+          loading={isLoading}
         />
       }
     />

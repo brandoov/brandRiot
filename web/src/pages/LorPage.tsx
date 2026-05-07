@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import GameShell from "@/components/game/GameShell";
 import RiotIdSearch, { type RiotIdSearchValue } from "@/components/RiotIdSearch";
 import StatusBanner from "@/components/StatusBanner";
@@ -13,24 +13,41 @@ export default function LorPage() {
   const matches = useApi(lorApi.recentMatches);
   const leaderboard = useApi(lorApi.masterLeaderboard);
 
-  async function handleSubmit(value: RiotIdSearchValue) {
+  // Recarrega leaderboard quando o cluster muda
+  const lastClusterRef = useRef<string>("");
+  useEffect(() => {
+    if (lastClusterRef.current === memory.cluster) return;
+    lastClusterRef.current = memory.cluster;
+    leaderboard.run({ cluster: memory.cluster });
+  }, [memory.cluster, leaderboard]);
+
+  const lastKeyRef = useRef<string>("");
+  useEffect(() => {
+    if (!memory.gameName) return;
+    const key = `${memory.gameName}|${memory.tagLine}|${memory.cluster}`;
+    if (lastKeyRef.current === key) return;
+    lastKeyRef.current = key;
+
+    let cancelled = false;
+    (async () => {
+      const acc = await account.run(memory.gameName, memory.tagLine, { cluster: memory.cluster });
+      if (cancelled || !acc) return;
+      await matches.run(acc.puuid, { cluster: memory.cluster });
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [memory, account, matches]);
+
+  function handleSubmit(value: RiotIdSearchValue) {
     setMemory(value);
-    const acc = await account.run(value.gameName, value.tagLine, { cluster: value.cluster });
-    await leaderboard.run({ cluster: value.cluster });
-    if (!acc) return;
-    await matches.run(acc.puuid, { cluster: value.cluster });
   }
 
-  useEffect(() => {
-    if (memory.gameName) {
-      handleSubmit(memory);
-    } else {
-      leaderboard.run({ cluster: memory.cluster });
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
   const model = buildLorModel({ matches: matches.data, leaderboard: leaderboard.data });
+
+  const isLoading = account.loading || matches.loading || leaderboard.loading;
+  const error = account.error ?? matches.error ?? leaderboard.error;
+  const accountLoaded = !!account.data && !error && !account.loading;
 
   const riotIdLabel = account.data
     ? `${account.data.gameName}#${account.data.tagLine}`
@@ -39,17 +56,35 @@ export default function LorPage() {
       : undefined;
 
   const banner = (() => {
-    if (account.error || matches.error || leaderboard.error) {
-      return <StatusBanner error={account.error ?? matches.error ?? leaderboard.error} />;
+    if (error) {
+      return <StatusBanner error={error} />;
     }
-    if (account.loading || matches.loading || leaderboard.loading) {
-      return <StatusBanner loading />;
+    if (isLoading) {
+      return (
+        <StatusBanner
+          loading
+          loadingMessage={
+            memory.gameName
+              ? `Carregando ${memory.gameName}#${memory.tagLine} e leaderboard ${memory.cluster}…`
+              : `Carregando leaderboard ${memory.cluster}…`
+          }
+        />
+      );
+    }
+    if (accountLoaded && account.data) {
+      const ids = matches.data?.matchIds.length ?? 0;
+      return (
+        <StatusBanner
+          success
+          successMessage={`PUUID resolvido para ${account.data.gameName}#${account.data.tagLine} · ${ids} partidas LoR · leaderboard ${leaderboard.data?.entries.length ?? 0} jogadores.`}
+        />
+      );
     }
     if (!memory.gameName && leaderboard.data) {
       return (
         <StatusBanner
           empty
-          emptyMessage="Leaderboard Master carregada. Informe seu Riot ID para buscar suas partidas pessoais."
+          emptyMessage={`Leaderboard Master (${leaderboard.data.entries.length}) carregada. Informe seu Riot ID para buscar suas partidas pessoais.`}
         />
       );
     }
@@ -67,7 +102,7 @@ export default function LorPage() {
           variant="inline"
           defaults={memory}
           onSubmit={handleSubmit}
-          loading={account.loading || matches.loading}
+          loading={isLoading}
         />
       }
     />

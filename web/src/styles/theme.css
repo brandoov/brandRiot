@@ -175,6 +175,10 @@ body {
   0% { background-position: -200% 0; }
   100% { background-position: 200% 0; }
 }
+@keyframes br-spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
 .shimmer {
   background: linear-gradient(90deg,
     transparent 0%,

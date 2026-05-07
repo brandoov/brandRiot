@@ -37,6 +37,10 @@ interface TftInputs {
 }
 interface ValorantInputs {
   history?: ValorantMatchHistoryResponse;
+  /** Riot ID custom (modo demonstração — sobrescreve o mock summoner). */
+  displayName?: string;
+  displayTag?: string;
+  displayPlatform?: string;
 }
 interface LorInputs {
   matches?: LorMatchIdsResponse;
@@ -171,8 +175,17 @@ export function buildValorantModel(inputs: ValorantInputs): GameModel {
     when: relativeFromIso(h.gameStartUtc)
   }));
 
+  const displayedSummoner = inputs.displayName
+    ? {
+        name: inputs.displayName,
+        tag: inputs.displayTag ?? base.summoner.tag,
+        level: base.summoner.level,
+        region: inputs.displayPlatform ?? base.summoner.region
+      }
+    : base.summoner;
+
   return {
-    summoner: base.summoner,
+    summoner: displayedSummoner,
     rank: base.rank,
     rankProgression: base.rankProgression,
     winRate: base.winRate,
@@ -186,7 +199,9 @@ export function buildValorantModel(inputs: ValorantInputs): GameModel {
       metaPicks: true,
       matches: !matches || matches.length === 0,
       rank: true,
-      summoner: true
+      // quando o usuário escolhe um Riot ID na demonstração, o nome/tag exibido
+      // não é mock (é o que ele digitou) — só os números é que continuam fake.
+      summoner: !inputs.displayName
     }
   };
 }
