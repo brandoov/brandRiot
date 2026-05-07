@@ -29,13 +29,15 @@ Direção de dependências: `Api → Application → Domain` e `Api → Infrastr
 
 ## Configuração
 
+> **⚠️ Importante**: o backend não tem autenticação. Rode somente em `localhost`. Não exponha publicamente sem auth/rate-limit. Veja [`SECURITY.md`](SECURITY.md).
+
 ### 1. Banco de dados
 
 ```bash
 docker compose up -d postgres
 ```
 
-Sobe um Postgres 16 em `localhost:5432` (banco/usuário/senha `brandriot`).
+Sobe um Postgres 16 em `localhost:5432` (banco `brandriot`, usuário `brandriot`, senha `brandriot_dev`).
 
 ### 2. Chave da API Riot
 

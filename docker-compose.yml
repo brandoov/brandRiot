@@ -6,7 +6,8 @@ services:
     environment:
       POSTGRES_DB: brandriot
       POSTGRES_USER: brandriot
-      POSTGRES_PASSWORD: brandriot
+      # Senha trivial de DEV (descartável). Sobrescreva em produção.
+      POSTGRES_PASSWORD: brandriot_dev
     ports:
       - "5432:5432"
     volumes:
