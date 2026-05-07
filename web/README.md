@@ -2,6 +2,23 @@
 
 Frontend Vite + React + TypeScript com tema dark cinemático integrado a partir do Claude Design. Cada jogo da Riot tem sua própria paleta, fonte e layout, montados em torno do mesmo `<GameShell>`.
 
+## Modo demo vs. modo real
+
+O frontend funciona em dois modos, controlados pela env var `VITE_DEMO_MODE`:
+
+| Modo | `VITE_DEMO_MODE` | Onde | API real | Banco | UI |
+|---|---|---|---|---|---|
+| **Real** (default) | `false` ou ausente | `npm run dev` local | sim, em `localhost:5260` | Postgres local | mostra dados reais quando o usuário busca um Riot ID |
+| **Demo** | `true` | `.env.production` + GitHub Pages | nenhuma chamada | nenhum | usa fixtures fictícios para todos os 4 jogos; o Riot ID digitado vira o nome exibido |
+
+Em demo, o `<HubLayout>` mostra um banner "Demonstração pública" no topo. Cada página exibe um `<StatusBanner success>` informando que está em modo demo.
+
+Para rodar localmente com demo (testar como ficará no GitHub Pages):
+
+```bash
+VITE_DEMO_MODE=true npm run dev
+```
+
 ## Rodar localmente
 
 ```bash
@@ -98,3 +115,17 @@ npm run build    # tsc -b && vite build → web/dist/
 npm run preview  # serve o dist localmente
 npm run lint     # tsc -b --noEmit
 ```
+
+## Deploy automático no GitHub Pages
+
+`.github/workflows/deploy-pages.yml` (na raiz do repo) faz `npm run build` com `VITE_DEMO_MODE=true` e publica em `https://<owner>.github.io/brandRiot/` toda vez que algo em `web/` é alterado em `main` (ou no branch atual de desenvolvimento).
+
+Pré-requisito (configuração única no GitHub):
+
+1. Acesse **Settings → Pages** do repositório.
+2. Em **Build and deployment → Source**, selecione **GitHub Actions**.
+3. Aguarde o primeiro run do workflow concluir (Actions → Deploy web to GitHub Pages).
+
+**Caminho base** — o site mora em `/brandRiot/`. `vite.config.ts` configura `base: "/brandRiot/"` em produção e o `BrowserRouter` lê `import.meta.env.BASE_URL` automaticamente, então não há nada a ajustar à mão.
+
+**Roteamento de SPA** — `public/404.html` redireciona qualquer rota desconhecida (`/lol`, `/tft`, etc.) de volta para `index.html` preservando o path, e um pequeno script no `index.html` recompõe a URL para o React Router.

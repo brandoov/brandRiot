@@ -6,6 +6,7 @@ import { lolApi } from "@/api/endpoints";
 import { useApi } from "@/lib/useApi";
 import { useRiotIdMemory } from "@/lib/useRiotIdMemory";
 import { buildLolModel } from "@/lib/buildGameModel";
+import { demoMode } from "@/lib/env";
 
 export default function LolPage() {
   const [memory, setMemory] = useRiotIdMemory("lol");
@@ -13,11 +14,9 @@ export default function LolPage() {
   const ranked = useApi(lolApi.ranked);
   const matches = useApi(lolApi.recentMatches);
 
-  // Dispara o fetch encadeado sempre que o `memory` mudar (e tenha gameName).
-  // Usar memory como dependência garante que cada submit (que chama setMemory)
-  // resulte numa nova execução, sem depender de capturas stale.
   const lastKeyRef = useRef<string>("");
   useEffect(() => {
+    if (demoMode) return;
     if (!memory.gameName) return;
     const key = `${memory.gameName}|${memory.tagLine}|${memory.platform}|${memory.cluster}`;
     if (lastKeyRef.current === key) return;
@@ -47,12 +46,15 @@ export default function LolPage() {
   const model = buildLolModel({
     player: player.data,
     ranked: ranked.data,
-    matches: matches.data
+    matches: matches.data,
+    displayName: demoMode && memory.gameName ? memory.gameName : undefined,
+    displayTag: demoMode && memory.gameName ? memory.tagLine : undefined,
+    displayPlatform: demoMode && memory.gameName ? memory.platform : undefined
   });
 
-  const isLoading = player.loading || ranked.loading || matches.loading;
-  const error = player.error ?? ranked.error ?? matches.error;
-  const realLoaded = !!player.data && !error && !isLoading;
+  const isLoading = !demoMode && (player.loading || ranked.loading || matches.loading);
+  const error = demoMode ? null : (player.error ?? ranked.error ?? matches.error);
+  const realLoaded = !demoMode && !!player.data && !error && !isLoading;
 
   const riotIdLabel = player.data
     ? `${player.data.gameName}#${player.data.tagLine}`
@@ -61,6 +63,22 @@ export default function LolPage() {
       : undefined;
 
   const banner = (() => {
+    if (demoMode) {
+      if (!memory.gameName) {
+        return (
+          <StatusBanner
+            empty
+            emptyMessage="Modo demonstração — digite qualquer Riot ID e veja a UI com dados de exemplo."
+          />
+        );
+      }
+      return (
+        <StatusBanner
+          success
+          successMessage={`Modo demonstração ativo para ${memory.gameName}#${memory.tagLine}. Clone o repositório e rode o backend localmente para ver dados reais da Riot API.`}
+        />
+      );
+    }
     if (!memory.gameName) {
       return (
         <StatusBanner

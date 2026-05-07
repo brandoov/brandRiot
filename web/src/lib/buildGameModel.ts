@@ -25,26 +25,42 @@ export interface GameModel extends GameDataMock {
   };
 }
 
-interface LolInputs {
-  player?: LolPlayerResponse;
-  ranked?: LolRankedResponse;
-  matches?: LolMatchResponse[];
-}
-interface TftInputs {
-  player?: TftPlayerResponse;
-  ranked?: TftRankedResponse;
-  matches?: TftMatchResponse[];
-}
-interface ValorantInputs {
-  history?: ValorantMatchHistoryResponse;
-  /** Riot ID custom (modo demonstração — sobrescreve o mock summoner). */
+interface DemoOverrides {
+  /** Riot ID custom (modo demonstração — sobrescreve o mock summoner quando dados reais não estão disponíveis). */
   displayName?: string;
   displayTag?: string;
   displayPlatform?: string;
 }
-interface LorInputs {
+
+interface LolInputs extends DemoOverrides {
+  player?: LolPlayerResponse;
+  ranked?: LolRankedResponse;
+  matches?: LolMatchResponse[];
+}
+interface TftInputs extends DemoOverrides {
+  player?: TftPlayerResponse;
+  ranked?: TftRankedResponse;
+  matches?: TftMatchResponse[];
+}
+interface ValorantInputs extends DemoOverrides {
+  history?: ValorantMatchHistoryResponse;
+}
+interface LorInputs extends DemoOverrides {
   matches?: LorMatchIdsResponse;
   leaderboard?: LorLeaderboardResponse;
+}
+
+function applyDisplayOverride<T extends { name: string; tag: string; level: number; region: string }>(
+  base: T,
+  o: DemoOverrides
+): T {
+  if (!o.displayName) return base;
+  return {
+    ...base,
+    name: o.displayName,
+    tag: o.displayTag ?? base.tag,
+    region: o.displayPlatform ?? base.region
+  };
 }
 
 const PRIMARY_LOL_QUEUE = "RANKED_SOLO_5x5";
@@ -77,7 +93,7 @@ export function buildLolModel(inputs: LolInputs): GameModel {
   return {
     summoner: player
       ? { name: player.gameName, tag: player.tagLine, level: Number(player.summonerLevel), region: player.platform }
-      : base.summoner,
+      : applyDisplayOverride(base.summoner, inputs),
     rank: rankedEntry
       ? {
           tier: rankedEntry.tier,
@@ -99,7 +115,7 @@ export function buildLolModel(inputs: LolInputs): GameModel {
       metaPicks: true,
       matches: !matches || matches.length === 0,
       rank: !rankedEntry,
-      summoner: !player
+      summoner: !player && !inputs.displayName
     }
   };
 }
@@ -131,7 +147,7 @@ export function buildTftModel(inputs: TftInputs): GameModel {
   return {
     summoner: player
       ? { name: player.gameName, tag: player.tagLine, level: Number(player.summonerLevel), region: player.platform }
-      : base.summoner,
+      : applyDisplayOverride(base.summoner, inputs),
     rank: rankedEntry
       ? {
           tier: rankedEntry.tier,
@@ -154,7 +170,7 @@ export function buildTftModel(inputs: TftInputs): GameModel {
       metaPicks: true,
       matches: !matches || matches.length === 0,
       rank: !rankedEntry,
-      summoner: !player
+      summoner: !player && !inputs.displayName
     }
   };
 }
@@ -175,17 +191,8 @@ export function buildValorantModel(inputs: ValorantInputs): GameModel {
     when: relativeFromIso(h.gameStartUtc)
   }));
 
-  const displayedSummoner = inputs.displayName
-    ? {
-        name: inputs.displayName,
-        tag: inputs.displayTag ?? base.summoner.tag,
-        level: base.summoner.level,
-        region: inputs.displayPlatform ?? base.summoner.region
-      }
-    : base.summoner;
-
   return {
-    summoner: displayedSummoner,
+    summoner: applyDisplayOverride(base.summoner, inputs),
     rank: base.rank,
     rankProgression: base.rankProgression,
     winRate: base.winRate,

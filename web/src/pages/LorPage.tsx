@@ -6,6 +6,7 @@ import { accountApi, lorApi } from "@/api/endpoints";
 import { useApi } from "@/lib/useApi";
 import { useRiotIdMemory } from "@/lib/useRiotIdMemory";
 import { buildLorModel } from "@/lib/buildGameModel";
+import { demoMode } from "@/lib/env";
 
 export default function LorPage() {
   const [memory, setMemory] = useRiotIdMemory("lor");
@@ -13,9 +14,10 @@ export default function LorPage() {
   const matches = useApi(lorApi.recentMatches);
   const leaderboard = useApi(lorApi.masterLeaderboard);
 
-  // Recarrega leaderboard quando o cluster muda
+  // Recarrega leaderboard quando o cluster muda (modo real apenas)
   const lastClusterRef = useRef<string>("");
   useEffect(() => {
+    if (demoMode) return;
     if (lastClusterRef.current === memory.cluster) return;
     lastClusterRef.current = memory.cluster;
     leaderboard.run({ cluster: memory.cluster });
@@ -23,6 +25,7 @@ export default function LorPage() {
 
   const lastKeyRef = useRef<string>("");
   useEffect(() => {
+    if (demoMode) return;
     if (!memory.gameName) return;
     const key = `${memory.gameName}|${memory.tagLine}|${memory.cluster}`;
     if (lastKeyRef.current === key) return;
@@ -43,11 +46,17 @@ export default function LorPage() {
     setMemory(value);
   }
 
-  const model = buildLorModel({ matches: matches.data, leaderboard: leaderboard.data });
+  const model = buildLorModel({
+    matches: matches.data,
+    leaderboard: leaderboard.data,
+    displayName: demoMode && memory.gameName ? memory.gameName : undefined,
+    displayTag: demoMode && memory.gameName ? memory.tagLine : undefined,
+    displayPlatform: demoMode && memory.gameName ? memory.platform : undefined
+  });
 
-  const isLoading = account.loading || matches.loading || leaderboard.loading;
-  const error = account.error ?? matches.error ?? leaderboard.error;
-  const accountLoaded = !!account.data && !error && !account.loading;
+  const isLoading = !demoMode && (account.loading || matches.loading || leaderboard.loading);
+  const error = demoMode ? null : (account.error ?? matches.error ?? leaderboard.error);
+  const accountLoaded = !demoMode && !!account.data && !error && !account.loading;
 
   const riotIdLabel = account.data
     ? `${account.data.gameName}#${account.data.tagLine}`
@@ -56,6 +65,22 @@ export default function LorPage() {
       : undefined;
 
   const banner = (() => {
+    if (demoMode) {
+      if (!memory.gameName) {
+        return (
+          <StatusBanner
+            empty
+            emptyMessage="Modo demonstração — digite qualquer Riot ID para ver a UI de Legends of Runeterra com dados de exemplo."
+          />
+        );
+      }
+      return (
+        <StatusBanner
+          success
+          successMessage={`Modo demonstração ativo para ${memory.gameName}#${memory.tagLine}. Clone o repositório e rode o backend localmente para ver dados reais.`}
+        />
+      );
+    }
     if (error) {
       return <StatusBanner error={error} />;
     }

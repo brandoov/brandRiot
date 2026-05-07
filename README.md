@@ -190,7 +190,7 @@ src/
 
 ## Frontend
 
-Frontend Vite + React + TS + Tailwind em `web/`. Funciona como placeholder até o Claude Design entregar os componentes definitivos. Detalhes em [`web/README.md`](web/README.md).
+Frontend Vite + React + TS + Tailwind em `web/`, com tema cinemático portado do Claude Design. Detalhes em [`web/README.md`](web/README.md).
 
 ```bash
 cd web
@@ -198,7 +198,13 @@ npm install
 npm run dev   # abre em http://localhost:5173 (proxy /api → http://localhost:5260)
 ```
 
-A camada `web/src/api/` (cliente HTTP, tipos, endpoints por jogo) deve permanecer ao trocar o design — basta substituir `src/components/` e `src/pages/` pelos componentes do Claude Design e reaproveitar `lolApi`, `tftApi`, `valorantApi`, `lorApi` e o hook `useApi`.
+## Deploy público (GitHub Pages)
+
+`.github/workflows/deploy-pages.yml` publica o frontend em `https://<owner>.github.io/brandRiot/` toda vez que algo em `web/` é alterado. O build é feito com `VITE_DEMO_MODE=true`, o que faz a aplicação rodar **sem precisar de backend nem banco** — perfeita para a aplicação à Riot por production key do Valorant, ou para divulgar a UI sem hospedar infraestrutura.
+
+Configuração única (uma vez por repositório): **Settings → Pages → Source: GitHub Actions**. O primeiro deploy roda automaticamente no próximo push.
+
+Em modo demo, todos os 4 jogos exibem dados fictícios; o Riot ID digitado pelo usuário vira o nome exibido nos cartões (sem fetch). Um banner discreto no topo explica que é uma demonstração pública. Para visualizar dados reais é só clonar e seguir o setup acima — sem mudanças de código.
 
 ## Fora do escopo (deferido)
 

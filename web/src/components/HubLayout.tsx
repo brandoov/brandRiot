@@ -2,6 +2,7 @@ import { Outlet } from "react-router-dom";
 import { useGameTheme } from "@/lib/useGameTheme";
 import { useEffect, useState } from "react";
 import { Icons } from "./game/icons";
+import { demoMode } from "@/lib/env";
 
 const MODE_KEY = "brandriot:mode";
 
@@ -25,7 +26,45 @@ export default function HubLayout() {
 
   return (
     <div style={{ minHeight: "100vh", background: "var(--bg-0)", color: "var(--text-0)" }}>
+      {demoMode && <DemoBanner />}
       <Outlet context={{ mode, setMode } satisfies HubContext} />
+    </div>
+  );
+}
+
+function DemoBanner() {
+  return (
+    <div
+      style={{
+        position: "sticky",
+        top: 0,
+        zIndex: 60,
+        padding: "8px 16px",
+        fontSize: 12,
+        background: "linear-gradient(90deg, rgba(200, 170, 110, 0.12), rgba(255, 70, 85, 0.12), rgba(55, 205, 190, 0.12), rgba(212, 166, 87, 0.12))",
+        borderBottom: "1px dashed rgba(255, 255, 255, 0.18)",
+        color: "var(--text-1)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: 12,
+        textAlign: "center",
+        flexWrap: "wrap"
+      }}
+    >
+      <span style={{ fontSize: 14 }}>⌬</span>
+      <span>
+        Demonstração pública — todos os dados são fictícios. Para visualizar dados reais da Riot API,{" "}
+        <a
+          href="https://github.com/brandoov/brandRiot"
+          target="_blank"
+          rel="noreferrer"
+          style={{ color: "var(--accent)", textDecoration: "underline" }}
+        >
+          clone o repositório
+        </a>{" "}
+        e rode o backend localmente.
+      </span>
     </div>
   );
 }
