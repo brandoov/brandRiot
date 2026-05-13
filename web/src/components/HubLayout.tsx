@@ -54,16 +54,7 @@ function DemoBanner() {
     >
       <span style={{ fontSize: 14 }}>⌬</span>
       <span>
-        Demonstração pública — todos os dados são fictícios. Para visualizar dados reais da Riot API,{" "}
-        <a
-          href="https://github.com/brandoov/brandRiot"
-          target="_blank"
-          rel="noreferrer"
-          style={{ color: "var(--accent)", textDecoration: "underline" }}
-        >
-          clone o repositório
-        </a>{" "}
-        e rode o backend localmente.
+        API integrada com a Riot Games — aguardando aprovação da chave de produção. Os dados exibidos são fictícios.
       </span>
     </div>
   );
